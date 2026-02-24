@@ -26,13 +26,13 @@ const (
 )
 
 func (h *Header) readFrom(reader io.ReadSeeker) error {
-	magicPart := make([]byte, len(MAGIC_NUMBER))
+	magicPart := make([]byte, len(MagicNumber))
 	_, err := reader.Read(magicPart)
 	if err != nil {
 		return err
 	}
 
-	if !bytes.Equal(magicPart, MAGIC_NUMBER) {
+	if !bytes.Equal(magicPart, MagicNumber) {
 		return ErrorInvalidCFB
 	}
 
@@ -60,8 +60,8 @@ func (h *Header) readFrom(reader io.ReadSeeker) error {
 		return err
 	}
 
-	if byteOrderMark != BYTE_ORDER_MARK {
-		return fmt.Errorf("invalid CFB byte order mark (expected %x, found %x)", BYTE_ORDER_MARK, byteOrderMark)
+	if byteOrderMark != ByteOrderMark {
+		return fmt.Errorf("invalid CFB byte order mark (expected %x, found %x)", ByteOrderMark, byteOrderMark)
 	}
 
 	version, err := VersionNumber(versionNumber)
@@ -83,8 +83,8 @@ func (h *Header) readFrom(reader io.ReadSeeker) error {
 	if err != nil {
 		return err
 	}
-	if miniSectorShift != MINI_SECTOR_SHIFT {
-		return fmt.Errorf("incorrect mini sector shift (expected %v, found %v)", MINI_SECTOR_SHIFT, miniSectorShift)
+	if miniSectorShift != MiniSectorShift {
+		return fmt.Errorf("incorrect mini sector shift (expected %v, found %v)", MiniSectorShift, miniSectorShift)
 	}
 
 	// seek reserved field
@@ -123,8 +123,8 @@ func (h *Header) readFrom(reader io.ReadSeeker) error {
 	if err != nil {
 		return err
 	}
-	if miniStreamCutoff != MINI_STREAM_CUTOFF {
-		return fmt.Errorf("incorrect mini stream cutoff (expected %v, found %v)", MINI_STREAM_CUTOFF, miniStreamCutoff)
+	if miniStreamCutoff != MiniStreamCutoff {
+		return fmt.Errorf("incorrect mini stream cutoff (expected %v, found %v)", MiniStreamCutoff, miniStreamCutoff)
 	}
 
 	var firstMinifatSector uint32
@@ -153,11 +153,11 @@ func (h *Header) readFrom(reader io.ReadSeeker) error {
 	}
 
 	// Some CFB implementations use FREE_SECTOR to indicate END_OF_CHAIN.
-	if firstDifatSector == FREE_SECTOR {
-		firstDifatSector = END_OF_CHAIN
+	if firstDifatSector == FreeSector {
+		firstDifatSector = EndOfChain
 	}
 
-	difatEntries := make([]uint32, NUM_DIFAT_ENTRIES_IN_HEADER)
+	difatEntries := make([]uint32, NumDifatEntriesInHeader)
 
 	for i := range difatEntries {
 
@@ -167,10 +167,10 @@ func (h *Header) readFrom(reader io.ReadSeeker) error {
 			return err
 		}
 
-		if next == FREE_SECTOR {
+		if next == FreeSector {
 			break
-		} else if next > MAX_REGULAR_SECTOR {
-			return fmt.Errorf("invalid DIFAT entry (expected value <= %v, found %v)", MAX_REGULAR_SECTOR, next)
+		} else if next > MaxRegularSector {
+			return fmt.Errorf("invalid DIFAT entry (expected value <= %v, found %v)", MaxRegularSector, next)
 
 		}
 		difatEntries[i] = next

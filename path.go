@@ -8,8 +8,6 @@ import (
 	"unicode/utf16"
 )
 
-const MAX_NAME_LEN int = 31
-
 type Ordering int
 
 const (
@@ -18,7 +16,7 @@ const (
 	OrderGreater
 )
 
-func ValidateName(name string, nameUtf16 []uint16) error {
+func ValidateName(name string, _ []uint16) error {
 	if strings.ContainsAny(name, "/\\:!") {
 		return fmt.Errorf("name contains one of /\\:! characters: %v", name)
 	}

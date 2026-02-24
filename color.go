@@ -10,9 +10,9 @@ const (
 func (c Color) AsByte() byte {
 	switch c {
 	case Red:
-		return COLOR_RED
+		return ColorRed
 	case Black:
-		return COLOR_BLACK
+		return ColorBlack
 	default:
 		return 0
 	}
@@ -20,9 +20,9 @@ func (c Color) AsByte() byte {
 
 func ColorFromByte(b byte) Color {
 	switch b {
-	case COLOR_RED:
+	case ColorRed:
 		return Red
-	case COLOR_BLACK:
+	case ColorBlack:
 		return Black
 	default:
 		return -1

@@ -20,17 +20,14 @@ func VersionNumber(v uint16) (Version, error) {
 	}
 }
 
-// Returns the sector shift used in this version.
 func (v Version) SectorShift() uint16 {
 	return uint16(v * 3)
 }
 
-// Returns the length of sectors used in this version.
 func (v Version) SectorLen() int {
 	return 1 << (int(v.SectorShift()))
 }
 
-// Returns the bitmask used for reading stream lengths in this version.
 func (v Version) SectorLenMask() uint64 {
 	switch v {
 	case V3:
@@ -42,7 +39,6 @@ func (v Version) SectorLenMask() uint64 {
 	}
 }
 
-// Returns the number of directory entries per sector in this version.
 func (v Version) DirEntriesPerSector() int {
-	return v.SectorLen() / DIR_ENTRY_LEN
+	return v.SectorLen() / DirEntryLen
 }

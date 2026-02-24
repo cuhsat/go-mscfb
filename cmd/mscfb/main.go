@@ -5,20 +5,16 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/asalih/go-mscfb"
+	"github.com/cuhsat/go-mscfb"
 )
 
 func main() {
-	files, err := filepath.Glob("testdata/*.msi")
+	files, err := filepath.Glob("*.msi")
 	if err != nil {
 		panic(err)
 	}
 
 	for _, file := range files {
-		if file == "testdata/.DS_Store" {
-			continue
-		}
-
 		rdr, err := os.OpenFile(file, os.O_RDONLY, 0)
 		if err != nil {
 			panic(err)

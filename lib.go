@@ -31,7 +31,7 @@ func Open(reader io.ReadSeeker, validation Validation) (*CompoundFile, error) {
 		return nil, err
 	}
 
-	if int(bufLen) < HEADER_LEN {
+	if int(bufLen) < HeaderLen {
 		return nil, ErrorInvalidCFB
 	}
 
@@ -47,7 +47,7 @@ func Open(reader io.ReadSeeker, validation Validation) (*CompoundFile, error) {
 	}
 
 	sectorLen := header.Version.SectorLen()
-	if bufLen > ((int64(MAX_REGULAR_SECTOR) + 1) * int64(sectorLen)) {
+	if bufLen > ((int64(MaxRegularSector) + 1) * int64(sectorLen)) {
 		return nil, fmt.Errorf("file is too large: %w", ErrorInvalidCFB)
 	}
 
@@ -67,8 +67,8 @@ func Open(reader io.ReadSeeker, validation Validation) (*CompoundFile, error) {
 	var sz uint32
 	uSize := unsafe.Sizeof(sz)
 
-	for currentDifatSector != END_OF_CHAIN {
-		if currentDifatSector > MAX_REGULAR_SECTOR {
+	for currentDifatSector != EndOfChain {
+		if currentDifatSector > MaxRegularSector {
 			return nil, fmt.Errorf("invalid DIFAT chain: %w", ErrorInvalidCFB)
 		} else if currentDifatSector >= sectors.NumSectors {
 			return nil, fmt.Errorf("invalid DIFAT chain includes sector index: %w", ErrorInvalidCFB)
@@ -93,7 +93,7 @@ func Open(reader io.ReadSeeker, validation Validation) (*CompoundFile, error) {
 				return nil, err
 			}
 
-			if next != FREE_SECTOR && next > MAX_REGULAR_SECTOR {
+			if next != FreeSector && next > MaxRegularSector {
 				return nil, fmt.Errorf("invalid DIFAT refers to invalid sector index %v", next)
 			}
 			difat = append(difat, next)
@@ -113,7 +113,7 @@ func Open(reader io.ReadSeeker, validation Validation) (*CompoundFile, error) {
 
 	//difat pop
 	for i := len(difat) - 1; i >= 0; i-- {
-		if difat[i] != FREE_SECTOR {
+		if difat[i] != FreeSector {
 			break
 		}
 		difat = difat[:i]
@@ -153,7 +153,7 @@ func Open(reader io.ReadSeeker, validation Validation) (*CompoundFile, error) {
 	}
 
 	for i := len(fat) - 1; i >= 0; i-- {
-		if fat[i] != FREE_SECTOR {
+		if fat[i] != FreeSector {
 			break
 		}
 		fat = fat[:i]
@@ -169,8 +169,8 @@ func Open(reader io.ReadSeeker, validation Validation) (*CompoundFile, error) {
 	seenDirSectors := make(map[uint32]bool)
 	currentDirSector := header.FirstDirSector
 
-	for currentDirSector != END_OF_CHAIN {
-		if currentDirSector > MAX_REGULAR_SECTOR {
+	for currentDirSector != EndOfChain {
+		if currentDirSector > MaxRegularSector {
 			return nil, fmt.Errorf("invalid directory chain: %w", ErrorInvalidCFB)
 		} else if currentDirSector >= sectors.NumSectors {
 			return nil, fmt.Errorf("invalid directory chain includes sector index: %w", ErrorInvalidCFB)
@@ -230,7 +230,7 @@ func Open(reader io.ReadSeeker, validation Validation) (*CompoundFile, error) {
 	}
 
 	for i := len(minifat) - 1; i >= 0; i-- {
-		if minifat[i] != FREE_SECTOR {
+		if minifat[i] != FreeSector {
 			break
 		}
 		minifat = minifat[:i]

@@ -17,7 +17,7 @@ func NewMiniChain(miniAlloc *MiniAlloc, sectorId uint32) (*MiniChain, error) {
 	firstSectorId := sectorId
 
 	var err error
-	for currentSectorId != END_OF_CHAIN {
+	for currentSectorId != EndOfChain {
 		sectorIds = append(sectorIds, currentSectorId)
 		currentSectorId, err = miniAlloc.Next(currentSectorId)
 		if err != nil {
@@ -37,7 +37,7 @@ func NewMiniChain(miniAlloc *MiniAlloc, sectorId uint32) (*MiniChain, error) {
 }
 
 func (c *MiniChain) Len() uint64 {
-	return uint64(MINI_SECTOR_LEN * len(c.SectorIds))
+	return uint64(MiniSectorLen * len(c.SectorIds))
 }
 
 func (c *MiniChain) ReadAll(p []byte) (int, error) {
@@ -45,8 +45,8 @@ func (c *MiniChain) ReadAll(p []byte) (int, error) {
 	totalRead := 0
 
 	for {
-		remainig := shouldRead - totalRead
-		if remainig == 0 {
+		remaining := shouldRead - totalRead
+		if remaining == 0 {
 			return totalRead, nil
 		}
 
@@ -71,7 +71,7 @@ func (c *MiniChain) Read(p []byte) (n int, err error) {
 		return 0, io.EOF
 	}
 
-	sectorLen := uint64(MINI_SECTOR_LEN)
+	sectorLen := uint64(MiniSectorLen)
 	currentSectorIndex := uint32(c.Offset / sectorLen)
 	currentSectorId := c.SectorIds[currentSectorIndex]
 	offsetWithinSector := c.Offset % sectorLen

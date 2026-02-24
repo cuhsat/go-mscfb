@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-const BUFFER_SIZE uint32 = 8192
+const BufferSize uint32 = 8192
 
 type Stream struct {
 	CompoundFile *CompoundFile
@@ -25,7 +25,7 @@ func newStream(comp *CompoundFile, streamId uint32) *Stream {
 
 		StreamId:        streamId,
 		TotalLen:        totalLen,
-		Buffer:          make([]byte, BUFFER_SIZE),
+		Buffer:          make([]byte, BufferSize),
 		Position:        0,
 		Cap:             0,
 		OffsetFromStart: 0,
@@ -33,7 +33,7 @@ func newStream(comp *CompoundFile, streamId uint32) *Stream {
 }
 
 func (s *Stream) CurrentPosition() uint64 {
-	return s.OffsetFromStart + uint64(s.Position)
+	return s.OffsetFromStart + s.Position
 }
 
 func (s *Stream) Read(p []byte) (int, error) {
@@ -56,15 +56,15 @@ func (s *Stream) Read(p []byte) (int, error) {
 func (s *Stream) fillBuf() ([]byte, error) {
 	if s.Position >= s.Cap &&
 		s.CurrentPosition() < s.TotalLen {
-		s.OffsetFromStart += uint64(s.Position)
+		s.OffsetFromStart += s.Position
 		s.Position = 0
 
-		cap, err := s.readDataFromStream()
+		n, err := s.readDataFromStream()
 		if err != nil {
 			return nil, err
 		}
 
-		s.Cap = uint64(cap)
+		s.Cap = uint64(n)
 	}
 
 	return s.Buffer[s.Position:s.Cap], nil
@@ -86,7 +86,7 @@ func (s *Stream) readDataFromStream() (int, error) {
 	}
 
 	if numBytes > 0 {
-		if dirEntry.StreamSize < uint64(MINI_STREAM_CUTOFF) {
+		if dirEntry.StreamSize < uint64(MiniStreamCutoff) {
 			chain, err := s.CompoundFile.MiniAlloc.OpenMiniChain(dirEntry.StartingSector)
 			if err != nil {
 				return 0, err

@@ -12,13 +12,13 @@ const (
 func (o ObjectType) AsByte() byte {
 	switch o {
 	case ObjUnallocated:
-		return OBJ_TYPE_UNALLOCATED
+		return ObjTypeUnallocated
 	case ObjStorage:
-		return OBJ_TYPE_STORAGE
+		return ObjTypeStorage
 	case ObjStream:
-		return OBJ_TYPE_STREAM
+		return ObjTypeStream
 	case ObjRoot:
-		return OBJ_TYPE_ROOT
+		return ObjTypeRoot
 	default:
 		return 0
 	}
@@ -26,13 +26,13 @@ func (o ObjectType) AsByte() byte {
 
 func ObjectFromByte(b byte) ObjectType {
 	switch b {
-	case OBJ_TYPE_UNALLOCATED:
+	case ObjTypeUnallocated:
 		return ObjUnallocated
-	case OBJ_TYPE_STORAGE:
+	case ObjTypeStorage:
 		return ObjStorage
-	case OBJ_TYPE_STREAM:
+	case ObjTypeStream:
 		return ObjStream
-	case OBJ_TYPE_ROOT:
+	case ObjTypeRoot:
 		return ObjRoot
 	default:
 		return -1

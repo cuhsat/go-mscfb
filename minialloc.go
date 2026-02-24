@@ -25,7 +25,7 @@ func NewMiniAlloc(d *Directory, minifat []uint32, minifatStartSector uint32) (*M
 
 func (a *MiniAlloc) Validate() error {
 	rootEntry := a.Directory.RootDirEntry()
-	rootStreamMiniSectors := rootEntry.StreamSize / uint64(MINI_SECTOR_LEN)
+	rootStreamMiniSectors := rootEntry.StreamSize / uint64(MiniSectorLen)
 	if rootStreamMiniSectors < uint64(len(a.Minifat)) {
 		return fmt.Errorf("miniFAT has %v entries, but root stream has only %v mini sectors",
 			len(a.Minifat), rootStreamMiniSectors)
@@ -33,7 +33,7 @@ func (a *MiniAlloc) Validate() error {
 
 	pointees := make(map[uint32]bool)
 	for miniSectorIdx, miniSector := range a.Minifat {
-		if miniSector <= MAX_REGULAR_SECTOR {
+		if miniSector <= MaxRegularSector {
 			if miniSector >= uint32(len(a.Minifat)) {
 				return fmt.Errorf("miniFAT[%v] points to mini sector %v, but there are only %v mini sectors",
 					miniSectorIdx, miniSector, len(a.Minifat))
@@ -68,8 +68,8 @@ func (a *MiniAlloc) Next(sectorId uint32) (uint32, error) {
 	}
 
 	nextId := a.Minifat[sectorId]
-	if nextId != END_OF_CHAIN &&
-		(nextId > MAX_REGULAR_SECTOR ||
+	if nextId != EndOfChain &&
+		(nextId > MaxRegularSector ||
 			nextId >= uint32(len(a.Minifat))) {
 		return 0, fmt.Errorf("sector id %v points to invalid sector id %v", sectorId, nextId)
 	}
@@ -84,5 +84,5 @@ func (a *MiniAlloc) SeekWithinMiniSector(sectorId uint32, offset uint64) (*Secto
 		return nil, err
 	}
 
-	return chain.IntoSubSector(sectorId, int64(MINI_SECTOR_LEN), offset)
+	return chain.IntoSubSector(sectorId, int64(MiniSectorLen), offset)
 }

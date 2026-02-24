@@ -24,10 +24,9 @@ func NewDirectory(allocator *Allocator, dirEntries []*DirEntry, dirStartSector u
 }
 
 func (d *Directory) RootDirEntry() *DirEntry {
-	return d.DirEntries[ROOT_STREAM_ID]
+	return d.DirEntries[RootStreamId]
 }
 
-// Returns an iterator over the entries within the root storage object.
 func (d *Directory) RootStorageEntries() *Entries {
 	start := d.RootDirEntry().Child
 
@@ -44,12 +43,12 @@ func (d *Directory) Validate() error {
 		return fmt.Errorf("directory has no root entry")
 	}
 
-	if rootDirEntry.StreamSize%uint64(MINI_SECTOR_LEN) != 0 {
-		return fmt.Errorf("root stream len is %v, but should be multiple of %v", rootDirEntry.StreamSize, MINI_SECTOR_LEN)
+	if rootDirEntry.StreamSize%uint64(MiniSectorLen) != 0 {
+		return fmt.Errorf("root stream len is %v, but should be multiple of %v", rootDirEntry.StreamSize, MiniSectorLen)
 	}
 
 	visited := make(map[uint32]bool)
-	stack := []uint32{ROOT_STREAM_ID}
+	stack := []uint32{RootStreamId}
 
 	for len(stack) > 0 {
 		dirEntryId := stack[len(stack)-1]
@@ -66,7 +65,7 @@ func (d *Directory) Validate() error {
 			return fmt.Errorf("directory has no entry for id %v", dirEntryId)
 		}
 
-		if dirEntryId == ROOT_STREAM_ID {
+		if dirEntryId == RootStreamId {
 			if dirEntry.ObjType != ObjRoot {
 				return fmt.Errorf("root entry has object type: %v", dirEntry.ObjType)
 			}
@@ -75,7 +74,7 @@ func (d *Directory) Validate() error {
 		}
 
 		leftSibling := dirEntry.LeftSibling
-		if leftSibling != NO_STREAM {
+		if leftSibling != NoStream {
 			if leftSibling >= uint32(len(d.DirEntries)) {
 				return fmt.Errorf("left sibling index is %v, but directory entry count is %v",
 					leftSibling, len(d.DirEntries))
@@ -90,7 +89,7 @@ func (d *Directory) Validate() error {
 		}
 
 		rightSibling := dirEntry.RightSibling
-		if rightSibling != NO_STREAM {
+		if rightSibling != NoStream {
 			if rightSibling >= uint32(len(d.DirEntries)) {
 				return fmt.Errorf("right sibling index is %v, but directory entry count is %v",
 					rightSibling, len(d.DirEntries))
@@ -105,7 +104,7 @@ func (d *Directory) Validate() error {
 		}
 
 		child := dirEntry.Child
-		if child != NO_STREAM {
+		if child != NoStream {
 			if child >= uint32(len(d.DirEntries)) {
 				return fmt.Errorf("child index is %v, but directory entry count is %v",
 					child, len(d.DirEntries))
@@ -119,12 +118,12 @@ func (d *Directory) Validate() error {
 }
 
 func (d *Directory) StreamIDForNameChain(names []string) (uint32, error) {
-	streamId := ROOT_STREAM_ID
+	streamId := RootStreamId
 
 	for _, name := range names {
 		streamId = d.DirEntries[streamId].Child
 		for {
-			if streamId == NO_STREAM {
+			if streamId == NoStream {
 				return 0, fmt.Errorf("stream not found: %v", name)
 			}
 			dirEntry := d.DirEntries[streamId]
@@ -138,6 +137,8 @@ func (d *Directory) StreamIDForNameChain(names []string) (uint32, error) {
 				streamId = dirEntry.LeftSibling
 			case OrderGreater:
 				streamId = dirEntry.RightSibling
+			default:
+				// ignore
 			}
 		}
 	}

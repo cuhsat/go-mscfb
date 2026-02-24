@@ -1,8 +1,5 @@
-module github.com/asalih/go-mscfb
+module github.com/cuhsat/go-mscfb
 
-go 1.17
+go 1.25
 
-require (
-	github.com/google/uuid v1.3.0
-	golang.org/x/text v0.4.0
-)
+require github.com/google/uuid v1.6.0

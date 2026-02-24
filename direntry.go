@@ -24,29 +24,6 @@ type DirEntry struct {
 	StreamSize     uint64
 }
 
-func NewDirEntry(name string, objType ObjectType, timestamp uint64) *DirEntry {
-	dir := DirEntry{
-		Name:         name,
-		ObjType:      objType,
-		Color:        Black,
-		LeftSibling:  NO_STREAM,
-		RightSibling: NO_STREAM,
-		Child:        NO_STREAM,
-		CLSID:        [16]byte{},
-		StateBits:    0,
-		CreationTime: timestamp,
-		ModifiedTime: timestamp,
-		StreamSize:   0,
-	}
-	if objType == ObjStorage {
-		dir.StartingSector = 0
-	} else {
-		dir.StartingSector = END_OF_CHAIN
-	}
-
-	return &dir
-}
-
 func ReadDirEntry(reader io.ReadSeeker, version Version, validation Validation) (*DirEntry, error) {
 
 	name := make([]uint16, 32)
@@ -97,7 +74,7 @@ func ReadDirEntry(reader io.ReadSeeker, version Version, validation Validation) 
 	// instead, for the root entry we just ignore the actual name in the
 	// file and treat it as though it were what it's supposed to be.
 	if objType == ObjRoot {
-		if nameStr != ROOT_DIR_NAME && validation.IsStrict() {
+		if nameStr != RootDirName && validation.IsStrict() {
 			return nil, fmt.Errorf("root directory name is invalid: %v", nameStr)
 		}
 	}
@@ -123,7 +100,7 @@ func ReadDirEntry(reader io.ReadSeeker, version Version, validation Validation) 
 	if err != nil {
 		return nil, err
 	}
-	if leftSibling != NO_STREAM && leftSibling > MAX_REGULAR_SECTOR {
+	if leftSibling != NoStream && leftSibling > MaxRegularSector {
 		return nil, fmt.Errorf("invalid left sibling: %v", leftSibling)
 	}
 
@@ -132,7 +109,7 @@ func ReadDirEntry(reader io.ReadSeeker, version Version, validation Validation) 
 	if err != nil {
 		return nil, err
 	}
-	if rightSibling != NO_STREAM && rightSibling > MAX_REGULAR_SECTOR {
+	if rightSibling != NoStream && rightSibling > MaxRegularSector {
 		return nil, fmt.Errorf("invalid left sibling: %v", rightSibling)
 	}
 
@@ -141,11 +118,11 @@ func ReadDirEntry(reader io.ReadSeeker, version Version, validation Validation) 
 	if err != nil {
 		return nil, err
 	}
-	if child != NO_STREAM {
+	if child != NoStream {
 		if objType == ObjStream {
 			return nil, fmt.Errorf("non-empty stream child: %v", child)
 		}
-		if child > MAX_REGULAR_SECTOR {
+		if child > MaxRegularSector {
 			return nil, fmt.Errorf("invalid child: %v", child)
 		}
 	}

@@ -1,6 +1,7 @@
 MIT License
 
 Copyright (c) 2022 Ahmet Salih
+Copyright (c) 2026 Christian Uhsat
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

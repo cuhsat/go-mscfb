@@ -84,7 +84,7 @@ func NewEntries(order EntriesOrder, directory *Directory, parentPath string, sta
 }
 
 func (e *Entries) StackLeftSpine(parentPath string, currentId uint32) {
-	for currentId != NO_STREAM {
+	for currentId != NoStream {
 		currentEntry := e.Directory.DirEntries[currentId]
 
 		e.Stack = append(e.Stack, &EntriesStack{
@@ -107,18 +107,18 @@ func (e *Entries) Next() *Entry {
 	e.Stack = e.Stack[:len(e.Stack)-1]
 
 	dirEntry := e.Directory.DirEntries[currentStack.StreamId]
-	path := joinPath(currentStack.ParentPath, dirEntry)
+	filePath := joinPath(currentStack.ParentPath, dirEntry)
 	if currentStack.VisitSiblings {
 		e.StackLeftSpine(currentStack.ParentPath, dirEntry.RightSibling)
 	}
 
 	if e.Order == EntriesPreorder &&
 		dirEntry.ObjType == ObjStream &&
-		dirEntry.Child != NO_STREAM {
-		e.StackLeftSpine(path, dirEntry.Child)
+		dirEntry.Child != NoStream {
+		e.StackLeftSpine(filePath, dirEntry.Child)
 	}
 
-	return NewEntry(dirEntry, path)
+	return NewEntry(dirEntry, filePath)
 }
 
 func joinPath(parentPath string, dirEntry *DirEntry) string {

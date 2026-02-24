@@ -10,11 +10,9 @@ type SectorInit int
 const (
 	SectorInitZero SectorInit = iota
 	SectorInitFat
-	SectorInitDifat
-	SectorInitDir
 )
 
-func (s SectorInit) Initialize(sector *Sectors) {
+func (s SectorInit) Initialize(_ *Sectors) {
 	panic("not implemented")
 }
 

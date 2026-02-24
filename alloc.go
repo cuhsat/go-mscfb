@@ -33,7 +33,7 @@ func (a *Allocator) Next(index uint32) (uint32, error) {
 	}
 
 	nextId := a.Fat[index]
-	if nextId != END_OF_CHAIN && (nextId > MAX_REGULAR_SECTOR || nextId >= uint32(len(a.Fat))) {
+	if nextId != EndOfChain && (nextId > MaxRegularSector || nextId >= uint32(len(a.Fat))) {
 		return 0, fmt.Errorf("invalid next index: %v", nextId)
 	}
 
@@ -52,11 +52,11 @@ func (a *Allocator) Validate() error {
 				len(a.Fat), difatSector, ErrorInvalidCFB)
 		}
 
-		if a.Fat[difatSector] != DIFAT_SECTOR {
+		if a.Fat[difatSector] != DifatSector {
 			if a.Validation.IsStrict() {
 				return fmt.Errorf("invalid DIFAT sector %v is not marked as such in the FAT: %w", difatSector, ErrorInvalidCFB)
 			} else {
-				a.Fat[difatSector] = DIFAT_SECTOR
+				a.Fat[difatSector] = DifatSector
 			}
 		}
 	}
@@ -67,18 +67,18 @@ func (a *Allocator) Validate() error {
 				len(a.Fat), difatSector, ErrorInvalidCFB)
 		}
 
-		if a.Fat[difatSector] != FAT_SECTOR {
+		if a.Fat[difatSector] != FatSector {
 			if a.Validation.IsStrict() {
 				return fmt.Errorf("invalid FAT sector %v is not marked as such in the FAT: %w", difatSector, ErrorInvalidCFB)
 			} else {
-				a.Fat[difatSector] = FAT_SECTOR
+				a.Fat[difatSector] = FatSector
 			}
 		}
 	}
 
 	pointees := make(map[uint32]bool)
 	for fatIdx, fat := range a.Fat {
-		if fat <= MAX_REGULAR_SECTOR {
+		if fat <= MaxRegularSector {
 			if fat >= uint32(len(a.Fat)) {
 				return fmt.Errorf("invalid FAT entry %v points to sector %v, but file has only %v sectors: %w",
 					fatIdx, fat, len(a.Fat), ErrorInvalidCFB)
@@ -88,7 +88,7 @@ func (a *Allocator) Validate() error {
 					fatIdx, fat, ErrorInvalidCFB)
 			}
 			pointees[fat] = true
-		} else if fat == INVALID_SECTOR {
+		} else if fat == InvalidSector {
 			return fmt.Errorf("invalid FAT entry %v points to sector %v, which is an invalid sector: %w", fatIdx, fat, ErrorInvalidCFB)
 		}
 	}

@@ -17,7 +17,7 @@ func NewChain(allocator *Allocator, startingSectorId uint32, init SectorInit) (*
 	currentSectorId := startingSectorId
 
 	var err error
-	for currentSectorId != END_OF_CHAIN {
+	for currentSectorId != EndOfChain {
 		sectorIds = append(sectorIds, currentSectorId)
 		currentSectorId, err = allocator.Next(currentSectorId)
 		if err != nil {
@@ -50,8 +50,8 @@ func (c *Chain) ReadAll(p []byte) (int, error) {
 	totalRead := 0
 
 	for {
-		remainig := shouldRead - totalRead
-		if remainig == 0 {
+		remaining := shouldRead - totalRead
+		if remaining == 0 {
 			return totalRead, nil
 		}
 
@@ -86,13 +86,13 @@ func (c *Chain) Read(p []byte) (int, error) {
 		return 0, err
 	}
 
-	bytesReaded, err := sector.Read(p[:maxLen])
+	bytesRead, err := sector.Read(p[:maxLen])
 	if err != nil {
 		return 0, err
 	}
 
-	c.OffsetFromStart += uint64(bytesReaded)
-	return bytesReaded, nil
+	c.OffsetFromStart += uint64(bytesRead)
+	return bytesRead, nil
 }
 
 func (c *Chain) Seek(offset int64, whence int) (int64, error) {
